@@ -12,4 +12,4 @@ cd $working_dir
 g++ -O3 -std=c++0x -o gremlin_cpp gremlin_cpp.cpp -fopenmp
 
 mkdir -p $RNACMAP_DIR/bin
-ln -s $working_dir/gremlin_cpp $RNACMAP_DIR/bin/gremlin_cpp
+ln -rs $RNACMAP_DIR/3rd_party/GREMLIN_CPP/gremlin_cpp $RNACMAP_DIR/bin/gremlin_cpp

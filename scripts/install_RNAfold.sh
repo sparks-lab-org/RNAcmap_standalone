@@ -16,4 +16,4 @@ cd ../
 rm -r ViennaRNA-2.4.14
 
 mkdir -p $RNACMAP_DIR/bin
-ln -s $working_dir/RNAfold/RNAfold $RNACMAP_DIR/bin/RNAfold
+ln -rs $RNACMAP_DIR/3rd_party/RNAfold/bin/RNAfold $RNACMAP_DIR/bin/RNAfold

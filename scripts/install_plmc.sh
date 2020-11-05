@@ -12,4 +12,4 @@ make all-openmp
 
 mkdir -p $RNACMAP_DIR/bin
 
-ln -s $working_dir/bin/plmc $RNACMAP_DIR/bin/plmc
+ln -rs $RNACMAP_DIR/3rd_party/plmc/bin/plmc $RNACMAP_DIR/bin/plmc
