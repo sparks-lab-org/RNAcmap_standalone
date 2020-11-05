@@ -4,11 +4,21 @@ input=$1
 input_dir=$(dirname $1)
 seq_id=$(basename $(basename $input) .fasta)
 
-path_blastn=./ncbi-blast-2.10.0+/bin
-path_blastn_database=./nt_database/nt
-path_infernal=./infernal-1.1.3-linux-intel-gcc/binaries
-path_infernal_database=./nt_database/nt
-path_matlab=/usr/local/bin
+# set script dir environment variable
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+RNACMAP_DIR=$(dirname $SCRIPT_DIR)
+
+
+
+
+
+# path_blastn=./ncbi-blast-2.10.0+/bin
+# path_blastn_database=./nt_database/nt
+# path_infernal=./infernal-1.1.3-linux-intel-gcc/binaries
+# path_infernal_database=./nt_database/nt
+# path_matlab=/usr/local/bin
 
 #path_blastn_database=/home/jaswinder/Downloads/ncbi_db/nt
 #path_infernal_database=/home/jaswinder/Documents/project4/database/nt
@@ -24,8 +34,8 @@ else
 	$path_blastn/blastn -db $path_blastn_database -query $input -out $input_dir/$seq_id.bla -evalue 0.001 -num_descriptions 1 -num_threads 8 -line_length 1000 -num_alignments 50000
 
 	######## reformat the output ################
-	./parse_blastn_local.pl $input_dir/$seq_id.bla $input_dir/$seq_id.fasta $input_dir/$seq_id.aln
-	./reformat.pl fas sto $input_dir/$seq_id.aln $input_dir/$seq_id.sto
+	$SCRIPT_DIR/parse_blastn_local.pl $input_dir/$seq_id.bla $input_dir/$seq_id.fasta $input_dir/$seq_id.aln
+	$SCRIPT_DIR/reformat.pl fas sto $input_dir/$seq_id.aln $input_dir/$seq_id.sto
 
 	######## predict secondary ################
 	if [[ $2 == 'SPOT-RNA' ]]; then
@@ -34,12 +44,13 @@ else
 		source ../venv_rnacmap/bin/activate || conda activate venv_rnacmap
 		python3 SPOT-RNA.py --inputs ../$input_dir/$seq_id.fasta --outputs ../$input_dir/
 		deactivate || conda deactivate
+		######## remove pseudoknot from predicted SS
 		cd ../k2n_standalone
 		python knotted2nested.py -f bpseq -F vienna  ../$input_dir/$seq_id.bpseq | tail -n +3 > ../$input_dir/$seq_id.dbn
 		cd ../
 	else
 		echo "Running RNAfold secondary structure predictor"
-		./RNAfold/bin/RNAfold $input | awk '{print $1}' | tail -n +3 > $input_dir/$seq_id.dbn
+		RNAfold $input | awk '{print $1}' | tail -n +3 > $input_dir/$seq_id.dbn
 	fi
 	
 	################ reformat ss with according to gaps in reference sequence of .sto file from blastn ################
@@ -58,17 +69,17 @@ else
 
 	######### reformat the output for dca input ###############
 	$path_infernal/esl-reformat --replace acgturyswkmbdhvn:................ a2m $input_dir/$seq_id.msa > $input_dir/$seq_id.a2m
-	awk '/^>/ {printf("\n%s\n",$0);next; } { printf("%s",$0);}  END {printf("\n");}' < $input_dir/$seq_id.a2m | sed '/^$/d' > $input_dir/temp.a2m # multiline fasta to single line fast
+	awk '/^>/ {printf("\n%s\n",$0);next; } { printf("%s",$0);}  END {printf("\n");}' < $input_dir/$seq_id.a2m | sed '/^$/d' > $input_dir/temp.a2m # multiline fasta to single line fasta
     cat $input_dir/$seq_id.fasta $input_dir/temp.a2m > $input_dir/$seq_id.a2m # add query sequence at the top of MSA file
 fi
 
 ######### run dca predictor ###############
 if [[ $3 == 'plmc' ]]; then
-	./plmc/bin/plmc -c outputs/$seq_id.dca_plmc -a -.ACGU -le 20 -lh 0.01 -m 50 $input_dir/$seq_id.a2m > outputs/$seq_id.log_plmc
+	plmc -c outputs/$seq_id.dca_plmc -a -.ACGU -le 20 -lh 0.01 -m 50 $input_dir/$seq_id.a2m > outputs/$seq_id.log_plmc
 elif [[ $3 == 'mf_DCA' ]]; then
 	$path_matlab/matlab -nodisplay -nosplash -nodesktop < run_mfdca.m > outputs/$seq_id.log_mfDCA
 else
-	./GREMLIN_CPP/gremlin_cpp -alphabet rna -i $input_dir/$seq_id.a2m -o outputs/$seq_id.dca_gremlin > outputs/$seq_id.log_gremlin
+	gremlin_cpp -alphabet rna -i $input_dir/$seq_id.a2m -o outputs/$seq_id.dca_gremlin > outputs/$seq_id.log_gremlin
 fi
 
 ############ save output in ct, bpseq and base-pair matrix #############
