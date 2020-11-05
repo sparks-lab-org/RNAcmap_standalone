@@ -1,5 +1,5 @@
 # RNAcmap
-A Fully Automatic Method for Predicting Contact Maps of RNAs by Evolutionary Coupling Analysis
+A Fully Automatic Pipeline for Predicting Contact Maps of RNAs by Evolutionary Coupling Analysis
 
 SYSTEM REQUIREMENTS
 ====
@@ -11,6 +11,7 @@ Software Requirments:
 ----
 * [BLASTN](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
 * [Infernal](http://eddylab.org/infernal/)
+* [RNAstructure](https://rna.urmc.rochester.edu/RNAstructure.html)
 * [MATLAB](https://au.mathworks.com/products/matlab.html) (optinal if using mf_DCA)
 * [Python3](https://docs.python-guide.org/starting/install3/linux/)
 * [virtualenv](https://virtualenv.pypa.io/en/latest/installation/) or [Anaconda](https://anaconda.org/anaconda/virtualenv)
@@ -31,45 +32,84 @@ To install RNAcmap and it's dependencies following commands can be used in termi
 
 Either follow **virtualenv** column steps or **conda** column steps to create virtual environment and to install RNAcmap python dependencies given in table below:<br />
 
-|  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; virtualenv | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; conda |
-| :- | :-------- | :--- |
+|    | virtualenv |conda  |
+| :- | :--------: | :---: |
 | 3. | `virtualenv -p python3.6 venv_rnacmap` | `conda create -n venv_rnacmap python=3.6` |
 | 4. | `source ./venv_rnacmap/bin/activate` | `conda activate venv_rnacmap` | 
 | 5. | `pip install -r requirements.txt && deactivate` | `conda install --file requirements.txt && conda deactivate` | 
 
-If Infernal tool is alread installed in the system, please add path to binary files in line no. 9 of 'run_rnacmap.sh' file. In case, Infernal tool is not installed in the system, please use follwing 2 command to download and extract it. In case of any problem and issue regarding Infernal download, please refer to [Infernal webpage](http://eddylab.org/infernal/) as following commands only tested on Ubuntu 18.04, 64 bit system.
+If Infernal tool is already installed in the system, please add the path for binary files to the script 'scripts/set_environments.sh' . In case Infernal tool is not installed in the system, Run the following script, Infernal 1.1.3 will be installed under `3rd_party/infernal`
 
-6. `wget 'eddylab.org/infernal/infernal-1.1.3-linux-intel-gcc.tar.gz'`
-7. `tar -xvzf infernal-*.tar.gz && rm infernal-*.tar.gz`
+6. `./scripts/install_infernal.sh`
 
-If BLASTN tool is alread installed in the system, please add path to binary files in line no. 7 of 'run_rnacmap.sh' file. In case, BLASTN tool is not installed in the system, please use follwing 2 command to download and extract it. In case of any problem and issue regarding BLASTN download, please refer to [BLASTN webpage](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) as following commands only tested on Ubuntu 18.04, 64 bit system.
+ In case of any problem and issue regarding Infernal download, please refer to [Infernal webpage](http://eddylab.org/infernal/) 
 
-8. `wget 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-*+-x64-linux.tar.gz'`
-9. `tar -xvzf ncbi-blast-*+-x64-linux.tar.gz && rm ncbi-blast-*+-x64-linux.tar.gz`
 
-Either install **RNAfold** or **SPOT-RNA** predictor depending upon which Secondary Structure predictor you want to use. Installation of RNAfold will take 15-20 mins and 2-3 mins for SPOT-RNA. Both the secondary structure can be installed as well if you want to predict for both predictors. In case of issue regarding installation of these predictors, please refer to more specific and detailed guide for [ViennaRNA](https://www.tbi.univie.ac.at/RNA/#download) and [SPOT-RNA](https://github.com/jaswindersingh2/SPOT-RNA).<br />
 
-10. `./install_RNAfold.sh` or/and `./install_SPOT-RNA.sh`
 
-If NCBI's nt database already available in your system, please add path to database in line no. 8 and line 10 of 'run_rnacmap.sh' file.  Otherwise, download the reference database ([NCBI's nt database](ftp://ftp.ncbi.nlm.nih.gov/blast/db/)) for BLASTN and INFERNAL. The following command can used for NCBI's nt database. Make sure there is enough space on the system as NCBI's nt database is of size around 270 GB after extraction and it can take couple of hours to download depending on the internet speed. In case of any issue, please rerfer to [NCBI's database website](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
+If BLASTN tool is already installed in the system, pplease add the path for binary files to the script 'scripts/set_environments.sh' In case, BLASTN tool is not installed in the system, run the following script, Infernal 1.1.3 will be installed under `3rd_party/blast`
 
-11. `wget -c "ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nt.gz" -O ./nt_database/nt.gz && gunzip ./nt_database/nt.gz`
+In case of any problem and issue regarding BLASTN download, please refer to [BLASTN webpage](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) as following commands only tested on Ubuntu 18.04, 64 bit system.
+
+7. `./scripts/install_blast.sh`
+
+Either install **RNAfold** or **SPOT-RNA** predictor depending upon which Secondary Structure predictor you want to use. Installation of RNAfold will take 15-20 mins and 2-3 mins for SPOT-RNA. Both the secondary structure can be installed as well if you want to predict for both predictors. 
+
+8. `./scripts/install_RNAfold.sh` or/and `./scripts/install_SPOT-RNA.sh`
+
+please refer to more specific and detailed guide for [ViennaRNA](https://www.tbi.univie.ac.at/RNA/#download) and [SPOT-RNA](https://github.com/jaswindersingh2/SPOT-RNA).
+
+If NCBI's nt database already available in your system, please add the path for binary files to the script 'scripts/set_environments.sh'.  Otherwise, download the reference database ([NCBI's nt database](ftp://ftp.ncbi.nlm.nih.gov/blast/db/)) for BLASTN and INFERNAL. The following command can be used for NCBI's nt database. Make sure there is enough space on the system, as NCBI's nt database will take up around 270 GB and it can take couple of hours to download. In case of any issue, please rerfer to [NCBI's database website](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
+
+9. `wget -c "ftp://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nt.gz" -O ./nt_database/nt.gz && gunzip ./nt_database/nt.gz`
 
 This NCBI's database need to formated to use with BLASTN tool. To format the NCBI's database, the following command can be used. Please make sure system have enough space as formated database is of size around 120 GB in addition to appox. 270 GB from previous step and it can few hours for it.
 
-12. `./ncbi-blast-2.10.0+/bin/makeblastdb -in ./nt_database/nt -dbtype nucl`
+10. `./ncbi-blast-2.10.0+/bin/makeblastdb -in ./nt_database/nt -dbtype nucl`
 
-To install the DCA predictor, please run the following command:<br />
+To install the DCA predictor, please run the following command:
 
-13. `./install_GREMLIN.sh` or/and `./install_plmc.sh`
+11. `./scripts/install_GREMLIN.sh` or/and `./scripts/install_plmc.sh`
 
-To run the RNAcmap
+
+Finally, run the following script to confirm dependencies are met.
+
+12. `./scripts/check_deps.sh` 
+
+Expected output:
+
+```
+## checking infernal & Blastn
+cmbuild                   OK
+cmcalibrate               OK
+cmsearch                  OK
+esl-reformat              OK
+blastn                    OK
+## checking 3rd party tools
+gremlin_cpp               OK
+plmc                      OK
+RNAfold                   OK
+ct2dot                    OK
+dot2ct                    OK
+RemovePseudoknots         OK
+SPOT-RNA.py               OK
+parse_blastn_local.pl     OK
+reformat.pl               OK
+get_ss.py                 OK
+```
+
+
+
+How To Use
 -----
 To run the RNAcmap, the following command can be used. Use either RNAfold or SPOT-RNA for secondary structure predictor and one DCA method among GREMLIN, plmc, and mfDCA as input argument.
 ```
-./run_rnacmap.sh inputs/sample_seq.fasta RNAfold/SPOT-RNA GREMLIN/plmc/mfDCA
+./run_rnacmap.sh inputs/sample_seq.fasta RNAfold|SPOT-RNA GREMLIN|plmc|mfDCA
 ```
-The final output will be the "*.dca" file in the "outputs" folder consists of predicted Direct Coupling Analysis (DCA) by RNAcmap for a given input RNA sequence.
+The final output will be the "*.dca" file in the `inputs/outputs` folder consists of predicted Direct Coupling Analysis (DCA) by RNAcmap for a given input RNA sequence.
+
+
+
 
 References
 ====
@@ -91,7 +131,9 @@ Other references:
 
 Licence
 ====
-Mozilla Public License 2.0
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
 Contact
