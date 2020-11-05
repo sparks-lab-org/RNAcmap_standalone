@@ -1,6 +1,7 @@
 # environment settings
-# DO NOT MOVE
 
+
+# set RNACMAP_DIR based on script position
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 RNACMAP_DIR=$(dirname $SCRIPT_DIR)
 
