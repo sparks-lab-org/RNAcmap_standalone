@@ -10,3 +10,4 @@ cd $working_dir
 
 wget 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-*+-x64-linux.tar.gz'
 tar -xvzf ncbi-blast-*+-x64-linux.tar.gz && rm ncbi-blast-*+-x64-linux.tar.gz
+ln -rs $RNACMAP_DIR/3rd_party/blast/ncbi-blast-*+/bin/blastn $RNACMAP_DIR/bin/

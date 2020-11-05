@@ -9,7 +9,7 @@ RNACMAP_DIR=$(dirname $SCRIPT_DIR)
 # path for ncbi-blast
 # install with install_blast.sh, or edit the following path
 path_blastn=$RNACMAP_DIR/3rd_party/blast/ncbi-blast-2.11.0+/bin
-path_blastn_database=$RNACMAP_DIR/nt_database/blastn_database/nt
+path_blastn_database=$RNACMAP_DIR/nt_database/infernal_database/nt
 
 # path for infernal 1.1.3
 # if infernal is installed but check_deps.sh can't find them, you can edit the path,
