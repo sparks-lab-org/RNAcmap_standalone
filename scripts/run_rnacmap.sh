@@ -19,6 +19,7 @@ fi
 
 input=$1 
 input_dir=$(dirname $1)
+output_dir=$input_dir/outputs
 seq_id=$(basename $(basename $input) .fasta)
 
 # set script dir environment variable
@@ -81,23 +82,28 @@ else
 	cmsearch -o $input_dir/$seq_id.out -A $input_dir/$seq_id.msa --cpu 24 --incE 10.0 $input_dir/$seq_id.cm $path_infernal_database
 
 	######### reformat the output for dca input ###############
-	esl-reformat --replace acgturyswkmbdhvn:................ a2m $input_dir/$seq_id.msa > $input_dir/$seq_id.a2m ## remove insertions
-	awk '/^>/ {printf("\n%s\n",$0);next; } { printf("%s",$0);}  END {printf("\n");}' < $input_dir/$seq_id.a2m | sed '/^$/d' > $input_dir/temp.a2m # multiline fasta to single line fasta
+	esl-reformat --replace acgturyswkmbdhvn:................ a2m $input_dir/$seq_id.msa > $input_dir/$seq_id.a2m 
+	cat $input_dir/$seq_id.a2m | awk '/^>/ {printf("\n%s\n",$0);next; } { printf("%s",$0);}  END {printf("\n");}' | sed '/^$/d' > $input_dir/temp.a2m # multiline fasta to single line fasta
     cat $input_dir/$seq_id.fasta $input_dir/temp.a2m > $input_dir/$seq_id.a2m # add query sequence at the top of MSA file
 fi
 
+
+mkdir -p $output_dir
+
+echo "######### run dca predictor ###############"
 ######### run dca predictor ###############
 if [[ $3 == 'plmc' ]]; then
-	plmc -c outputs/$seq_id.dca_plmc -a -.ACGU -le 20 -lh 0.01 -m 50 $input_dir/$seq_id.a2m > outputs/$seq_id.log_plmc
+	plmc -c $output_dir/$seq_id.dca_plmc -a -.ACGU -le 20 -lh 0.01 -m 50 $input_dir/$seq_id.a2m > $output_dir/$seq_id.log_plmc
 elif [[ $3 == 'mf_DCA' ]]; then
-	$path_matlab/matlab -nodisplay -nosplash -nodesktop < $SCRIPT_DIR/run_mfdca.m > outputs/$seq_id.log_mfDCA
+	$path_matlab/matlab -nodisplay -nosplash -nodesktop < $SCRIPT_DIR/run_mfdca.m > $output_dir/$seq_id.log_mfDCA
 else
-	gremlin_cpp -alphabet rna -i $input_dir/$seq_id.a2m -o outputs/$seq_id.dca_gremlin > outputs/$seq_id.log_gremlin
+	gremlin_cpp -alphabet rna -i $input_dir/$seq_id.a2m -o $output_dir/$seq_id.dca_gremlin > $output_dir/$seq_id.log_gremlin
 fi
 
+echo "############ save output in ct, bpseq and base-pair matrix #############"
 ############ save output in ct, bpseq and base-pair matrix #############
 # source ./venv_rnacmap/bin/activate || conda activate venv_rnacmap
-python3 $SCRIPT_DIR/get_ss.py --inputs_path $input_dir --rna_id $seq_id --outputs outputs
+python3 $SCRIPT_DIR/get_ss.py --inputs_path $input_dir --rna_id $seq_id --outputs $output_dir
 
 end=`date +%s`
 
