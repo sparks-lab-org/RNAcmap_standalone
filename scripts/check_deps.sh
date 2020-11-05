@@ -30,7 +30,6 @@ done
 for SCRIPT in $path_spotrna/SPOT-RNA.py \
                $SCRIPT_DIR/parse_blastn_local.pl \
                $SCRIPT_DIR/reformat.pl \
-               $RNACMAP_DIR/3rd_party/k2n_standalone/knotted2nested.py \
                $SCRIPT_DIR/get_ss.py;do
 
     if [ ! -f $SCRIPT ];    then

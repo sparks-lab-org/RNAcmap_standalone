@@ -7,20 +7,25 @@ RNACMAP_DIR=$(dirname $SCRIPT_DIR)
 
 
 # path for ncbi-blast
-path_blastn=/project/aspen/software/ncbi-blast-2.2.30+/bin
+# install with install_blast.sh, or edit the following path
+path_blastn=$RNACMAP_DIR/3rd_party/blast/ncbi-blast-2.11.0+/bin
 path_blastn_database=$RNACMAP_DIR/nt_database/blastn_database/nt
 
 # path for infernal 1.1.3
-# install with install_infernal.sh, or edit the following links
+# if infernal is installed but check_deps.sh can't find them, you can edit the path,
+# or install it with provided scripts.
 path_infernal=${RNACMAP_DIR}/3rd_party/infernal/infernal-1.1.3-linux-intel-gcc/binaries
 path_infernal_database=$RNACMAP_DIR/nt_database/infernal_database/nt
 
-# path for SPOT-RNA
+# path for infernal 1.1.3
+# if infernal is installed but check_deps.sh can't find them, you can edit the path,
+# or install it with provided scripts.
 path_spotrna=$RNACMAP_DIR/3rd_party/SPOT-RNA
 
 
-# path for RNAstructure
-
+# path for infernal 1.1.3
+# if infernal is installed but check_deps.sh can't find them, you can edit the path,
+# or install it with provided scripts.
 path_rnastructure=$RNACMAP_DIR/3rd_party/RNAstructure/RNAstructure/exe/
 
 # Matlab, Required for mfdca
